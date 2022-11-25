@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
+const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -18,13 +18,31 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const productsCollection = client.db('resaleProducts').collection('products')
+        const buyingsCollection = client.db('resaleProducts').collection('buyings')
+
 
 
         app.get('/categories/:brand', async (req, res) => {
             const brand = req.params.brand;
-            const query = {brand: brand}
-            const result = await productsCollection.findOne(query)
+            const query = { brand: brand }
+            const result = await productsCollection.find(query).toArray()
             res.send(result);
+        });
+        
+
+        app.post('/buyings', async (req, res) => {
+            const bookings = req.body;
+            console.log(bookings)
+            const query = {
+                brand: bookings.brand
+            }
+            const alreadyBuyed = await buyingsCollection.find(query).toArray()
+            if (alreadyBuyed.length) {
+                const message = `you already have a buying on ${bookings.brand}`
+                return res.send({ accKnowledged: false, message })
+            }
+            const result = await buyingsCollection.insertOne(bookings);
+            res.send(result)
         })
 
     }
