@@ -54,6 +54,13 @@ async function run() {
             res.send(result)
         })
 
+        app.get('/products', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const result = await productsCollection.find(query).toArray()
+            res.send(result)
+        })
+
         app.delete('/buyings/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -78,7 +85,7 @@ async function run() {
         app.post('/buyings', async (req, res) => {
             const bookings = req.body;
             const query = {
-                brand: bookings.brand
+                brand: bookings.email
             }
             const alreadyBuyed = await buyingsCollection.find(query).toArray()
             if (alreadyBuyed.length) {
@@ -112,20 +119,6 @@ async function run() {
             const result = await buyersCollection.insertOne(buyer)
             res.send(result)
 
-        })
-
-
-        app.put('/buyers/admin/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) }
-            const options = { upsert: true };
-            const updatedDoc = {
-                $set: {
-                    role: 'admin'
-                }
-            }
-            const result = await buyersCollection.updateOne(filter, updatedDoc, options)
-            res.send(result)
         })
 
     }
