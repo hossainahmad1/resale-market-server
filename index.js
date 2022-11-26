@@ -48,6 +48,13 @@ async function run() {
             res.send(result);
         });
 
+
+        app.post('/products', async (req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            res.send(result)
+        })
+
         app.delete('/buyings/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -56,7 +63,7 @@ async function run() {
             res.send(result)
         })
 
-        
+
         app.get('/buyings', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
@@ -67,6 +74,7 @@ async function run() {
             const result = await buyingsCollection.find(query).toArray()
             res.send(result)
         })
+
 
         app.post('/buyings', async (req, res) => {
             const bookings = req.body;
