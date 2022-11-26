@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -15,6 +15,23 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.2wczu4w.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+
+
+function verifyJWT(req, res, next) {
+    const authHeaders = req.headers.authorization;
+    if (!authHeaders) {
+        return res.status(401).send('UnAuthorized access')
+    }
+    const token = authHeaders.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'forbidden access' });
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
 
 async function run() {
     try {
@@ -31,27 +48,52 @@ async function run() {
             res.send(result);
         });
 
+        app.delete('/buyings/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const filter = { _id: ObjectId(id) }
+            const result = await buyingsCollection.deleteOne(filter)
+            res.send(result)
+        })
+
+        
         app.get('/buyings', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
+            // const decodedEmail = req.decoded.email;
+            // if (email !== decodedEmail) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
             const result = await buyingsCollection.find(query).toArray()
             res.send(result)
         })
 
         app.post('/buyings', async (req, res) => {
             const bookings = req.body;
-            console.log(bookings)
             const query = {
                 brand: bookings.brand
             }
             const alreadyBuyed = await buyingsCollection.find(query).toArray()
             if (alreadyBuyed.length) {
-                const message = `you already have a buying on ${bookings.brand}`
+                const message = `Already bought a Product on ${bookings.brand}`
                 return res.send({ accKnowledged: false, message })
             }
             const result = await buyingsCollection.insertOne(bookings);
             res.send(result)
         });
+
+        // app.get('/jwt', async (req, res) => {
+        //     const email = req.query.email;
+        //     const query = { email: email };
+        //     const buyer = await buyersCollection.findOne(query);
+        //     if (buyer) {
+        //         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '1d' });
+        //         return res.send({ accessToken: token })
+        //     }
+        //     res.status(403).send({ accessToken: '' })
+        // })
+
+
         app.post('/buyers', async (req, res) => {
             const buyer = req.body;
             const result = await buyersCollection.insertOne(buyer)
@@ -65,7 +107,6 @@ async function run() {
     }
 }
 run().catch(e => console.log(e))
-
 
 
 app.get('/', async (req, res) => {
