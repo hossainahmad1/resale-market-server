@@ -33,11 +33,14 @@ function verifyJWT(req, res, next) {
     })
 }
 
+
 async function run() {
     try {
         const productsCollection = client.db('resaleProducts').collection('products')
         const buyingsCollection = client.db('resaleProducts').collection('buyings')
         const buyersCollection = client.db('resaleProducts').collection('buyers')
+
+
 
 
         app.get('/categories/:brand', async (req, res) => {
@@ -46,6 +49,13 @@ async function run() {
             const result = await productsCollection.find(query).toArray()
             res.send(result);
         });
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const filter = { _id: ObjectId(id) }
+            const result = await productsCollection.deleteOne(filter)
+            res.send(result)
+        })
 
 
         app.post('/products', async (req, res) => {
