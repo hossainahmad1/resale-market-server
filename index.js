@@ -117,6 +117,16 @@ async function run() {
             res.status(403).send({ accessToken: '' })
         })
 
+        app.get('/buyers/:select', async (req, res) => {
+            const buyer = req.params.select;
+            const query = { select: buyer }
+            const result = await buyersCollection.find(query).toArray()
+            console.log(result)
+            res.send(result);
+        })
+
+
+
         app.get('/buyers', async (req, res) => {
             const query = {}
             const buyers = await buyersCollection.find(query).toArray()
