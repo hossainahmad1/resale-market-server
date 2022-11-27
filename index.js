@@ -106,6 +106,24 @@ async function run() {
             res.send(result)
         });
 
+
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options)
+            res.send(result);
+        });
+
+
+
+
+
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
@@ -123,6 +141,13 @@ async function run() {
             const result = await buyersCollection.find(query).toArray()
             console.log(result)
             res.send(result);
+        })
+
+        app.delete('/buyers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await buyersCollection.deleteOne(query)
+            res.send(result)
         })
 
 
