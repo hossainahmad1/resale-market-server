@@ -79,6 +79,7 @@ async function run() {
             res.send(result)
         })
 
+        
 
         app.get('/buyings', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -107,21 +108,18 @@ async function run() {
         });
 
 
-        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
+        app.put('/buyers/verify/:id',verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    role: 'admin'
+                    verify: 'verified'
                 }
             }
-            const result = await usersCollection.updateOne(filter, updatedDoc, options)
+            const result = await buyersCollection.updateOne(filter, updatedDoc, options)
             res.send(result);
         });
-
-
-
 
 
         app.get('/jwt', async (req, res) => {
@@ -135,13 +133,22 @@ async function run() {
             res.status(403).send({ accessToken: '' })
         })
 
-        app.get('/buyers/:select', async (req, res) => {
-            const buyer = req.params.select;
-            const query = { select: buyer }
-            const result = await buyersCollection.find(query).toArray()
-            console.log(result)
-            res.send(result);
+
+        // app.get('/buyers', async (req, res) => {
+        //     const buyer = req.query.select;
+        //     const query = { select: buyer }
+        //     const result = await buyersCollection.find(query).toArray()
+        //     console.log(result)
+        //     res.send(result);
+        // })
+
+        app.get('/buyerss', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const result = await buyersCollection.findOne(query);
+            res.send(result)
         })
+
 
         app.delete('/buyers/:id', async (req, res) => {
             const id = req.params.id;
@@ -149,7 +156,6 @@ async function run() {
             const result = await buyersCollection.deleteOne(query)
             res.send(result)
         })
-
 
 
         app.get('/buyers', async (req, res) => {
