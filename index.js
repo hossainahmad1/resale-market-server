@@ -66,13 +66,44 @@ async function run() {
             res.send(result)
         })
 
-        
+        // query the products on email
         app.get('/products', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
             const result = await productsCollection.find(query).toArray()
             res.send(result)
-        })
+        });
+
+        // products verify in all products
+        app.put('/products/verify/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    verify: true
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+
+
+        app.put('/products/advertise/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    advertise: true
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+        // productsCollection end
+
+
 
         app.delete('/buyings/:id', async (req, res) => {
             const id = req.params.id;
@@ -82,7 +113,7 @@ async function run() {
             res.send(result)
         })
 
-        
+
 
         app.get('/buyings', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -111,20 +142,23 @@ async function run() {
         });
 
 
-        app.put('/buyers/verify/:id',verifyJWT, async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updatedDoc = {
-                $set: {
-                    verify: 'verified'
-                }
-            }
-            const result = await buyersCollection.updateOne(filter, updatedDoc, options);
-            res.send(result);
-        });
+        // update verify seller
+        // app.put('/buyers/verify/:id', verifyJWT, async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updatedDoc = {
+        //         $set: {
+        //             verify: 'verified'
+        //         }
+        //     }
+        //     const result = await buyersCollection.updateOne(filter, updatedDoc, options);
+        //     res.send(result);
+        // });
 
 
+
+        // jsonwebtoken
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
@@ -137,44 +171,42 @@ async function run() {
         })
 
 
+
+        // all users thats mean buyers
+        app.delete('/buyers/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await buyersCollection.deleteOne(query)
+            res.send(result)
+        });
+
         app.get('/buyers/:select', async (req, res) => {
             const buyer = req.params.select;
             const query = { select: buyer }
             const result = await buyersCollection.find(query).toArray()
             console.log(result)
             res.send(result);
-        })
-
-        app.get('/buyerss', async (req, res) => {
-            const email = req.query.email;
-            const query = { email: email }
-            const result = await buyersCollection.findOne(query);
-            res.send(result)
-        })
-
-
-        app.delete('/buyers/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) }
-            const result = await buyersCollection.deleteOne(query)
-            res.send(result)
-        })
+        });
 
 
         app.get('/buyers', async (req, res) => {
             const query = {}
             const buyers = await buyersCollection.find(query).toArray()
             res.send(buyers)
-        })
-
+        });
 
         app.post('/buyers', async (req, res) => {
             const buyer = req.body;
             const result = await buyersCollection.insertOne(buyer)
             res.send(result)
+        });
 
-        })
-
+        app.get('/buyerss', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const result = await buyersCollection.findOne(query);
+            res.send(result)
+        });
     }
     finally {
 
