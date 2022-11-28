@@ -42,13 +42,15 @@ async function run() {
 
 
 
-
+        // get the total products
         app.get('/categories/:brand', async (req, res) => {
             const brand = req.params.brand;
             const query = { brand: brand }
             const result = await productsCollection.find(query).toArray()
             res.send(result);
         });
+
+        // postable products delete
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -57,13 +59,14 @@ async function run() {
             res.send(result)
         })
 
-
+        //post products
         app.post('/products', async (req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product);
             res.send(result)
         })
 
+        
         app.get('/products', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
@@ -117,7 +120,7 @@ async function run() {
                     verify: 'verified'
                 }
             }
-            const result = await buyersCollection.updateOne(filter, updatedDoc, options)
+            const result = await buyersCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         });
 
@@ -134,13 +137,13 @@ async function run() {
         })
 
 
-        // app.get('/buyers', async (req, res) => {
-        //     const buyer = req.query.select;
-        //     const query = { select: buyer }
-        //     const result = await buyersCollection.find(query).toArray()
-        //     console.log(result)
-        //     res.send(result);
-        // })
+        app.get('/buyers/:select', async (req, res) => {
+            const buyer = req.params.select;
+            const query = { select: buyer }
+            const result = await buyersCollection.find(query).toArray()
+            console.log(result)
+            res.send(result);
+        })
 
         app.get('/buyerss', async (req, res) => {
             const email = req.query.email;
