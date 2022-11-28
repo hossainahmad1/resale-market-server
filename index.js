@@ -74,33 +74,19 @@ async function run() {
             res.send(result)
         });
 
-        // products verify in all products
-        app.put('/products/verify/:email', async (req, res) => {
-            const email = req.params.email;
-            const filter = { email: email };
-            const options = { upsert: true };
-            const updatedDoc = {
-                $set: {
-                    verify: true
-                }
-            }
-            const result = await productsCollection.updateOne(filter, updatedDoc, options);
-            res.send(result);
-        });
-
-
-        app.put('/products/advertise/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updatedDoc = {
-                $set: {
-                    advertise: true
-                }
-            }
-            const result = await productsCollection.updateOne(filter, updatedDoc, options);
-            res.send(result);
-        });
+        
+        // app.put('/products/advertise/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updatedDoc = {
+        //         $set: {
+        //             advertise: true
+        //         }
+        //     }
+        //     const result = await productsCollection.updateOne(filter, updatedDoc, options);
+        //     res.send(result);
+        // });
         // productsCollection end
 
 
@@ -143,18 +129,18 @@ async function run() {
 
 
         // update verify seller
-        // app.put('/buyers/verify/:id', verifyJWT, async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: ObjectId(id) };
-        //     const options = { upsert: true };
-        //     const updatedDoc = {
-        //         $set: {
-        //             verify: 'verified'
-        //         }
-        //     }
-        //     const result = await buyersCollection.updateOne(filter, updatedDoc, options);
-        //     res.send(result);
-        // });
+        app.put('/buyers/verify/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    verify: 'verified'
+                }
+            }
+            const result = await buyersCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
 
 
 
