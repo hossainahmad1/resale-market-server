@@ -15,20 +15,20 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-function verifyJWT(req, res, next) {
-    const authHeaders = req.headers.authorization;
-    if (!authHeaders) {
-        return res.status(401).send('UnAuthorized is a very vbif  access')
-    }
-    const token = authHeaders.split(' ')[1];
-    jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
-        if (err) {
-            return res.status(403).send({ message: 'forbidden access' });
-        }
-        req.decoded = decoded;
-        next()
-    })
-}
+// function verifyJWT(req, res, next) {
+//     const authHeaders = req.headers.authorization;
+//     if (!authHeaders) {
+//         return res.status(401).send('UnAuthorized is a very vbif  access')
+//     }
+//     const token = authHeaders.split(' ')[1];
+//     jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+//         if (err) {
+//             return res.status(403).send({ message: 'forbidden access' });
+//         }
+//         req.decoded = decoded;
+//         next()
+//     })
+// }
 
 
 async function run() {
@@ -72,18 +72,18 @@ async function run() {
         });
 
         
-        app.put('/products/advertise/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updatedDoc = {
-                $set: {
-                    advertise: true
-                }
-            }
-            const result = await productsCollection.updateOne(filter, updatedDoc, options);
-            res.send(result);
-        });
+        // app.put('/products/advertise/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updatedDoc = {
+        //         $set: {
+        //             advertise: true
+        //         }
+        //     }
+        //     const result = await productsCollection.updateOne(filter, updatedDoc, options);
+        //     res.send(result);
+        // });
         // productsCollection end
 
 
@@ -96,15 +96,14 @@ async function run() {
             res.send(result)
         })
 
-
         // verifyJWT,
-        app.get('/buyings',verifyJWT,  async (req, res) => {
+        app.get('/buyings', async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
-            const decodedEmail = req.decoded.email;
-            if (email !== decodedEmail) {
-                return res.status(403).send({ message: 'forbidden access' })
-            }
+            // const decodedEmail = req.decoded.email;
+            // if (email !== decodedEmail) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
             const result = await buyingsCollection.find(query).toArray()
             res.send(result)
         })
@@ -140,16 +139,16 @@ async function run() {
         });
 
         // jsonwebtoken
-        app.get('/jwt', async (req, res) => {
-            const email = req.query.email;
-            const query = { email: email };
-            const buyer = await buyersCollection.findOne(query);
-            if (buyer) {
-                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '1d' });
-                return res.send({ accessToken: token })
-            }
-            res.status(403).send({ accessToken: '' })
-        })
+        // app.get('/jwt', async (req, res) => {
+        //     const email = req.query.email;
+        //     const query = { email: email };
+        //     const buyer = await buyersCollection.findOne(query);
+        //     if (buyer) {
+        //         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '1d' });
+        //         return res.send({ accessToken: token })
+        //     }
+        //     res.status(403).send({ accessToken: '' })
+        // })
 
 
 
